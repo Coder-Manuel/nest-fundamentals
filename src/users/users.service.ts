@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -24,12 +25,16 @@ export class UsersService {
   public async getUsers(name?: string): Promise<UserArrayResponse> {
     if (name) {
       const filteredUsers = await this.usersRepository.find({
-        firstName: name,
+        where: { firstName: name },
+        relations: ['attendances_registered'],
       });
+
       return new UserArrayResponse(filteredUsers);
     }
 
-    const users = await this.usersRepository.find();
+    const users = await this.usersRepository.find({
+      relations: ['attendances_registered'],
+    });
 
     return new UserArrayResponse(users);
   }
