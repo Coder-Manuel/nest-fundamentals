@@ -3,7 +3,9 @@ import {
   IsBoolean,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPhoneNumber,
+  IsUUID,
 } from 'class-validator';
 
 export class CreateCongregantDTO {
@@ -34,4 +36,9 @@ export class CreateCongregantDTO {
   @IsNotEmpty()
   @IsBoolean()
   vaccinated: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsUUID()
+  fellowship: string;
 }
