@@ -47,6 +47,12 @@ export class HomeFellowshipService {
     return fellowships;
   }
 
+  /**
+   *
+   * @param id The fellowship id.
+   * @param leader The id of the leader to be set.
+   * @returns {}
+   */
   public async setFellowshipLeader(id: string, leader: string): Promise<any> {
     const fellowship = await this.fellowshipRepo.findOne({ id: id });
 
