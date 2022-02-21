@@ -46,4 +46,18 @@ export class HomeFellowshipService {
 
     return fellowships;
   }
+
+  public async setFellowshipLeader(id: string, leader: string): Promise<any> {
+    const fellowship = await this.fellowshipRepo.findOne({ id: id });
+
+    if (!fellowship) {
+    }
+
+    // * Assign the leader to the fellowship
+    fellowship.leader = leader;
+
+    const updatedFellowship = await this.fellowshipRepo.save(fellowship);
+
+    return updatedFellowship;
+  }
 }
