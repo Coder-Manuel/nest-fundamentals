@@ -62,7 +62,7 @@ export class CongregantsService {
    * @returns {}
    */
   public async addFellowship(id: string, fellowship: string): Promise<any> {
-    const cong = await this.congRepository.find({ id: id });
+    const cong = await this.findById(id);
 
     if (!cong) {
       throw new NotFoundException({
@@ -84,5 +84,16 @@ export class CongregantsService {
         description: `${error}`,
       });
     }
+  }
+
+  /**
+   *
+   * @param id The id of the congregant
+   * @returns Congregant
+   */
+  public async findById(id: string): Promise<Congregant> {
+    const congregant = await this.congRepository.findOne({ id: id });
+
+    return congregant;
   }
 }

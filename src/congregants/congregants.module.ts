@@ -8,5 +8,6 @@ import { Congregant } from './entities';
   providers: [CongregantsService],
   controllers: [CongregantsController],
   imports: [TypeOrmModule.forFeature([Congregant])],
+  exports: [CongregantsService],
 })
 export class CongregantsModule {}
