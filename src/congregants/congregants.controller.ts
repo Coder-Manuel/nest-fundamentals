@@ -1,10 +1,20 @@
-import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { VALIDATION_PIPES } from 'src/users/utilities';
 import { CongregantsService } from './congregants.service';
 import { CreateCongregantDTO } from './dto';
 import { Congregant } from './entities';
@@ -14,6 +24,9 @@ import { Congregant } from './entities';
 export class CongregantsController {
   constructor(private congService: CongregantsService) {}
 
+  // ? ======== GET REQUESTS ============
+
+  // * ========== FETCH ALL CONGREGANTS ==========
   @ApiOkResponse({ type: Congregant, isArray: true })
   @HttpCode(200)
   @ApiQuery({ name: 'limit', type: Number })
@@ -26,9 +39,25 @@ export class CongregantsController {
     return await this.congService.getAllCongregants(page, limit);
   }
 
+  // ? ======== POST REQUESTS ============
+
+  // * ========== CREATE CONGREGANT ==========
   @ApiCreatedResponse({ type: Congregant })
   @Post('create')
   async createCongregant(@Body() input: CreateCongregantDTO): Promise<any> {
     return await this.congService.createCongregant(input);
+  }
+
+  // ? ======== PUT REQUESTS ============
+
+  // * ========== ADD FELLOWSHIP TO CONGREGANT ==========
+  @ApiOkResponse({ type: Congregant })
+  @HttpCode(200)
+  @Put(':id/addFellowship/:fellowship')
+  async addFellowship(
+    @Param('id', VALIDATION_PIPES.UUID_PIPE) id: string,
+    @Param('fellowship', VALIDATION_PIPES.UUID_PIPE) fellowship: string,
+  ): Promise<any> {
+    return await this.congService.addFellowship(id, fellowship);
   }
 }

@@ -11,6 +11,11 @@ export class AttendanceService {
     private attendanceRepo: Repository<Attendance>,
   ) {}
 
+  /**
+   *
+   * @param input CreateAttendanceDTO object.
+   * @returns {}
+   */
   public async createAttendance(input: CreateAttendanceDTO): Promise<any> {
     const { temperature, checked_in_by, user } = input;
 
@@ -21,6 +26,16 @@ export class AttendanceService {
     });
 
     const attendance = await this.attendanceRepo.save(newAttendance);
+
+    return attendance;
+  }
+
+  public async getAllAttendance(page: number, limit: number): Promise<any> {
+    const attendance = await this.attendanceRepo.find({
+      take: limit | 1,
+      skip: (page - 1) * limit,
+      relations: ['user', 'checked_in_by'],
+    });
 
     return attendance;
   }
