@@ -1,20 +1,23 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import config from 'ormconfig';
+import { ORMCONFIG } from 'ormconfig';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users';
 import { CongregantsModule } from './congregants/congregants.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { HomeFellowshipModule } from './home-fellowship/home-fellowship.module';
 import { DepartmentsModule } from './departments/departments.module';
+import { NmaModule } from './nma/nma.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({
-      useFactory: async () =>
-        Object.assign(config, {
-          autoLoadEntities: true,
-        }),
+    TypeOrmModule.forRoot({
+      ...ORMCONFIG.postgres,
+      autoLoadEntities: true,
+    }),
+    TypeOrmModule.forRoot({
+      ...ORMCONFIG.mysql,
+      autoLoadEntities: true,
     }),
     AuthModule,
     UsersModule,
@@ -22,6 +25,7 @@ import { DepartmentsModule } from './departments/departments.module';
     AttendanceModule,
     HomeFellowshipModule,
     DepartmentsModule,
+    NmaModule,
   ],
 })
 export class AppModule {}

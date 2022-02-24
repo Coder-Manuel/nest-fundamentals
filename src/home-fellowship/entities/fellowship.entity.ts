@@ -22,7 +22,9 @@ export class HomeFellowship extends BaseEntity {
   meetup_place: string;
 
   @JoinColumn()
-  @OneToOne(() => Congregant, (congregant) => congregant.id)
+  @OneToOne(() => Congregant, (congregant) => congregant.id, {
+    onDelete: 'SET NULL',
+  })
   @ApiProperty()
   leader: string;
 
