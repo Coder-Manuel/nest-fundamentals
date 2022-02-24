@@ -6,6 +6,7 @@ import { UsersModule } from './users';
 import { CongregantsModule } from './congregants/congregants.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { HomeFellowshipModule } from './home-fellowship/home-fellowship.module';
+import { DepartmentsModule } from './departments/departments.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { HomeFellowshipModule } from './home-fellowship/home-fellowship.module';
     CongregantsModule,
     AttendanceModule,
     HomeFellowshipModule,
+    DepartmentsModule,
   ],
 })
 export class AppModule {}
