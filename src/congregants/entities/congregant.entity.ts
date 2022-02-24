@@ -12,7 +12,6 @@ import { Column, Entity, ManyToOne, OneToMany, Unique } from 'typeorm';
   'residence',
 ])
 export class Congregant extends UserBaseEntity {
-  @ApiProperty()
   @Column({
     name: 'national_id',
     nullable: true,
@@ -32,15 +31,15 @@ export class Congregant extends UserBaseEntity {
   @Column()
   vaccinated: boolean;
 
+  @ApiProperty({ type: Attendance, isArray: true })
   @OneToMany(() => Attendance, (attendance) => attendance.user, {
     cascade: true,
-    onDelete: 'CASCADE',
   })
   attendances: Attendance[];
 
   @ManyToOne(() => HomeFellowship, (fellowship) => fellowship.members, {
     cascade: true,
-    onDelete: 'CASCADE',
+    onDelete: 'SET NULL',
   })
   fellowship: string;
 }

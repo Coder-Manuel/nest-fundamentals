@@ -53,10 +53,10 @@ export class CongregantsController {
   // * ========== ADD FELLOWSHIP TO CONGREGANT ==========
   @ApiOkResponse({ type: Congregant })
   @HttpCode(200)
-  @Put(':id/addFellowship/:fellowship')
+  @Put(':id/addFellowship')
   async addFellowship(
     @Param('id', VALIDATION_PIPES.UUID_PIPE) id: string,
-    @Param('fellowship', VALIDATION_PIPES.UUID_PIPE) fellowship: string,
+    @Query('fellowship', VALIDATION_PIPES.UUID_PIPE) fellowship: string,
   ): Promise<any> {
     return await this.congService.addFellowship(id, fellowship);
   }

@@ -8,9 +8,13 @@ export class Attendance extends BaseEntity {
   @Column()
   temperature: string;
 
-  @ManyToOne(() => User, (user) => user.attendances_registered)
+  @ManyToOne(() => User, (user) => user.attendances_registered, {
+    onDelete: 'SET NULL',
+  })
   checked_in_by: string;
 
-  @ManyToOne(() => Congregant, (congregant) => congregant.attendances)
+  @ManyToOne(() => Congregant, (congregant) => congregant.attendances, {
+    onDelete: 'CASCADE',
+  })
   user: string;
 }

@@ -9,11 +9,14 @@ import { CreateUserDTO } from './dto';
 import { User } from './entities';
 import { UserArrayResponse, UserResponse } from './utilities';
 import * as bcrypt from 'bcrypt';
+import { CongregantsService } from 'src/congregants';
+import ORMErrorHandler from 'src/utilities/error_handlers/orm_error_handler';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    private readonly congService: CongregantsService,
   ) {}
 
   /**
@@ -24,15 +27,15 @@ export class UsersService {
   public async getUsers(name?: string): Promise<UserArrayResponse> {
     if (name) {
       const filteredUsers = await this.usersRepository.find({
-        where: { firstName: name },
-        relations: ['attendances_registered'],
+        where: { email: name },
+        relations: ['attendances_registered', 'details'],
       });
 
       return new UserArrayResponse(filteredUsers);
     }
 
     const users = await this.usersRepository.find({
-      relations: ['attendances_registered'],
+      relations: ['attendances_registered', 'details'],
     });
 
     return new UserArrayResponse(users);
@@ -45,7 +48,7 @@ export class UsersService {
    * @throws { NotFoundException } - When no user with the id is found
    */
   public async getUserById(id: string): Promise<UserResponse> {
-    const user = await this._findByID(id);
+    const user = await this.findByID(id);
 
     if (!user) {
       throw new NotFoundException();
@@ -61,35 +64,41 @@ export class UsersService {
    * @returns { User } - The user created.
    */
   public async createUser(user: CreateUserDTO): Promise<UserResponse> {
-    const { firstName, lastName, email, mobile, password } = user;
+    const { email, congregant_id } = user;
+
+    const cong = await this.congService.findById(congregant_id);
+
+    if (!cong) {
+      throw new NotFoundException({
+        message: 'Entity not found',
+        description: 'The congregant_id is NOT associated with any congregant',
+      });
+    }
 
     const newUser = this.usersRepository.create({
-      firstName,
-      lastName,
       email,
-      mobile,
-      password,
+      details: cong,
+      username: email,
+      password: email,
     });
 
-    const results = await this.usersRepository.save(newUser);
+    try {
+      const results = await this.usersRepository.save(newUser);
 
-    const usr = results;
+      // * Obscure the password from the response
+      delete results.password;
 
-    return new UserResponse(usr);
+      return new UserResponse(results);
+    } catch (error) {
+      // * This throws errors according to the error codes.
+      ORMErrorHandler.handle(error, 'email');
+    }
   }
 
   public async getUserByUsername(username: string): Promise<User> {
     const user = await this.usersRepository.findOne({
-      where: { email: username },
-      select: [
-        'firstName',
-        'lastName',
-        'email',
-        'mobile',
-        'password',
-        'createdAt',
-        'updatedAt',
-      ],
+      where: { username: username },
+      select: ['id', 'email', 'username', 'password', 'createdAt', 'updatedAt'],
     });
 
     return user;
@@ -116,13 +125,19 @@ export class UsersService {
     return user;
   }
 
+  public async deleteUser(id: string) {
+    const user = await this.findByID(id);
+
+    return await this.usersRepository.delete(user);
+  }
+
   /**
    *
    * @param { string } id - The id of the user to get.
    * @returns { User } - User found
    * @throws { NotFoundException } - When no user with the id is found
    */
-  private async _findByID(id: string): Promise<User> {
+  private async findByID(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id: id } });
 
     if (!user) {

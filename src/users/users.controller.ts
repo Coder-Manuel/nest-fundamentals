@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -60,5 +61,14 @@ export class UsersController {
   @Post('/create')
   async createUser(@Body() body: CreateUserDTO): Promise<UserResponse> {
     return this.usersService.createUser(body);
+  }
+
+  @ApiOkResponse({ type: UserResponse })
+  @Delete(':id')
+  async deleteUser(
+    @Param('id', VALIDATION_PIPES.UUID_PIPE)
+    id: string,
+  ): Promise<any> {
+    return await this.usersService.deleteUser(id);
   }
 }

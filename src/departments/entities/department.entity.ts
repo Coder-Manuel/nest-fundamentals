@@ -18,7 +18,9 @@ export class Department extends BaseEntity {
   name: string;
 
   @JoinColumn()
-  @OneToOne(() => Congregant, (congregant) => congregant.id)
+  @OneToOne(() => Congregant, (congregant) => congregant.id, {
+    onDelete: 'SET NULL',
+  })
   @ApiProperty()
   leader: string;
 
