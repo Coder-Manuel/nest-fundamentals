@@ -8,6 +8,9 @@ export class Attendance extends BaseEntity {
   @Column()
   temperature: string;
 
+  @Column()
+  time: string;
+
   @ManyToOne(() => User, (user) => user.attendances_registered, {
     onDelete: 'SET NULL',
   })

@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('attendance')
+@Entity('congregants')
 export class NAttendance {
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,7 +21,7 @@ export class NAttendance {
   residence: string;
 
   @Column({ name: 'national_id' })
-  natID: string;
+  nationalID: string;
 
   @Column()
   department: string;
@@ -30,14 +30,8 @@ export class NAttendance {
   homeFellowship: string;
 
   @Column()
-  temperature: number;
-
-  @Column({ name: 'checked_in_by' })
-  checked_in_by: string;
+  created_at: string;
 
   @Column()
-  date: string;
-
-  @Column()
-  time: string;
+  vaccinated: string;
 }

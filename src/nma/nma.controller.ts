@@ -6,11 +6,11 @@ import { NmaService } from './nma.service';
 @Controller('nma')
 export class NmaController {
   constructor(private readonly service: NmaService) {}
-  @Get('attendance')
-  async getAttendance(
+  @Get('congregants/transfer')
+  async transferCongregants(
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
-    return await this.service.getAttendance(page, limit);
+    return await this.service.transferCongregants(page, limit);
   }
 }
