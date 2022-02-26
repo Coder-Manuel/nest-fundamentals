@@ -13,4 +13,12 @@ export class NmaController {
   ) {
     return await this.service.transferCongregants(page, limit);
   }
+
+  @Get('attendance/transfer')
+  async transferAttendance(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return await this.service.transferAttendance(page, limit);
+  }
 }

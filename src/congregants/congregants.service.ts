@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import ORMErrorHandler from 'src/utilities/error_handlers/orm_error_handler';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CreateCongregantDTO } from './dto';
 import { Congregant } from './entities';
 
@@ -29,10 +29,24 @@ export class CongregantsService {
     const congregants = await this.congRepository.find({
       take: limit,
       skip: (page - 1) * limit,
-      relations: ['attendances', 'fellowship'],
+      relations: ['attendances', 'fellowship', 'department'],
     });
 
     return congregants;
+  }
+
+  public async getCongregant(query: string): Promise<Congregant[]> {
+    const congregant = await this.congRepository.find({
+      where: [
+        { firstName: Like(`%${query}%`) },
+        { lastName: Like(`%${query}%`) },
+        { mobile: Like(`%${query}%`) },
+        { national_ID: Like(`%${query}%`) },
+      ],
+      relations: ['attendances', 'fellowship', 'department'],
+    });
+
+    return congregant;
   }
 
   /**
@@ -40,13 +54,17 @@ export class CongregantsService {
    * @param input  The congregant input dto
    * @returns {}
    */
-  public async createCongregant(
-    input: CreateCongregantDTO,
-  ): Promise<Congregant> {
+  public async createCongregant(input: CreateCongregantDTO): Promise<any> {
     const congregant = this.congRepository.create(input);
 
     try {
-      const newCongregant = await this.congRepository.save(congregant);
+      const newCongregant = await this.congRepository
+        .createQueryBuilder()
+        .insert()
+        .into(Congregant)
+        .values(congregant)
+        .orIgnore()
+        .execute();
 
       return newCongregant;
     } catch (error) {
@@ -84,6 +102,21 @@ export class CongregantsService {
         description: `${error}`,
       });
     }
+  }
+
+  public async addDepartment(depName: string, depID: string): Promise<any> {
+    const cong = await this.congRepository.find({
+      where: { dep_name: depName },
+    });
+
+    cong.forEach(async (element) => {
+      const newCongregant = this.congRepository.create({
+        id: element.id,
+        department: depID,
+      });
+
+      await this.congRepository.save(newCongregant);
+    });
   }
 
   /**

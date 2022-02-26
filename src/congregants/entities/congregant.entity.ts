@@ -1,16 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Attendance } from 'src/attendance/entities';
+import { Department } from 'src/departments/entities';
 import { HomeFellowship } from 'src/home-fellowship/entities';
 import { UserBaseEntity } from 'src/utilities/entities';
 import { Column, Entity, ManyToOne, OneToMany, Unique } from 'typeorm';
 
 @Entity('congregants')
-@Unique('unique_congregant_key', [
-  'firstName',
-  'lastName',
-  'mobile',
-  'residence',
-])
+@Unique('unique_congregant_key', ['firstName', 'lastName', 'mobile'])
 export class Congregant extends UserBaseEntity {
   @Column({
     name: 'national_id',
@@ -42,4 +38,13 @@ export class Congregant extends UserBaseEntity {
     onDelete: 'SET NULL',
   })
   fellowship: string;
+
+  @ManyToOne(() => Department, (department) => department.members, {
+    cascade: true,
+    onDelete: 'SET NULL',
+  })
+  department: string;
+
+  @Column()
+  dep_name?: string;
 }

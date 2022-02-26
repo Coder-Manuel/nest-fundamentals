@@ -1,15 +1,20 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CongregantsService } from 'src/congregants';
 import { CreateCongregantDTO } from 'src/congregants/dto';
+import { Congregant } from 'src/congregants/entities';
 import { Repository } from 'typeorm';
-import { NAttendance } from './entities/nma-attendance.entity';
+import { NAttendance, NCongregant } from './entities';
 
 @Injectable()
 export class NmaService {
   constructor(
+    @InjectRepository(NCongregant, 'prod')
+    private readonly repository: Repository<NCongregant>,
+
     @InjectRepository(NAttendance, 'prod')
-    private readonly repository: Repository<NAttendance>,
+    private readonly attendRepo: Repository<NAttendance>,
+
     private readonly congService: CongregantsService,
   ) {}
 
@@ -38,6 +43,8 @@ export class NmaService {
         congregant.national_ID = element.nationalID;
         congregant.residence = element.residence;
         congregant.vaccinated = element.vaccinated === 'Yes' ? true : false;
+        congregant.createdAt = element.created_at;
+        congregant.dep_name = element.department;
 
         await this.congService.createCongregant(congregant);
       });
@@ -56,5 +63,27 @@ export class NmaService {
         description: error,
       });
     }
+  }
+
+  public async transferAttendance(page: number, limit: number): Promise<any> {
+    const cong = await this.congService.getAllCongregants(page, limit);
+
+    return await this.getAttendance(cong);
+  }
+
+  private async getAttendance(congregants: Congregant[]) {
+    const attendances = [];
+
+    for (const element of congregants) {
+      const att = await this.attendRepo.find({
+        where: { firstName: element.firstName, otherName: element.lastName },
+      });
+
+      const attendance = { user: element, attendance: att };
+
+      attendances.push(attendance);
+    }
+
+    return await Promise.all(attendances);
   }
 }

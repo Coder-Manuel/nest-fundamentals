@@ -39,6 +39,15 @@ export class CongregantsController {
     return await this.congService.getAllCongregants(page, limit);
   }
 
+  // * ========== SEARCH CONGREGANTS ==========
+  @ApiOkResponse({ type: Congregant })
+  @HttpCode(200)
+  @ApiQuery({ name: 'query', type: String })
+  @Get('search')
+  async getCongregant(@Query('query') query: string): Promise<any> {
+    return await this.congService.getCongregant(query);
+  }
+
   // ? ======== POST REQUESTS ============
 
   // * ========== CREATE CONGREGANT ==========
@@ -59,5 +68,16 @@ export class CongregantsController {
     @Query('fellowship', VALIDATION_PIPES.UUID_PIPE) fellowship: string,
   ): Promise<any> {
     return await this.congService.addFellowship(id, fellowship);
+  }
+
+  // * ========== ADD DEPARTMENT TO CONGREGANT ==========
+  @ApiOkResponse({ type: Congregant })
+  @HttpCode(200)
+  @Put(':depName/addDepartment')
+  async addDepartment(
+    @Param('depName') depName: string,
+    @Query('depID', VALIDATION_PIPES.UUID_PIPE) depID: string,
+  ): Promise<any> {
+    return await this.congService.addDepartment(depName, depID);
   }
 }
