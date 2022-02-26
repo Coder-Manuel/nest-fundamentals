@@ -49,6 +49,23 @@ export class CongregantsService {
     return congregant;
   }
 
+  public async getCongregantByNameMobile(
+    fName: string,
+    lName: string,
+    mobile: string,
+  ): Promise<Congregant[]> {
+    const congregant = await this.congRepository.find({
+      where: {
+        firstName: fName,
+        lastName: lName,
+        mobile: mobile,
+      },
+      relations: ['attendances', 'fellowship', 'department'],
+    });
+
+    return congregant;
+  }
+
   /**
    *
    * @param input  The congregant input dto

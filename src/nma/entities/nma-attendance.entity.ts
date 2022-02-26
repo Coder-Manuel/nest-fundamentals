@@ -30,7 +30,7 @@ export class NAttendance {
   homeFellowship: string;
 
   @Column()
-  temperature: number;
+  temperature: string;
 
   @Column({ name: 'checked_in_by' })
   checked_in_by: string;

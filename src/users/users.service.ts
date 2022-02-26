@@ -64,7 +64,7 @@ export class UsersService {
    * @returns { User } - The user created.
    */
   public async createUser(user: CreateUserDTO): Promise<UserResponse> {
-    const { email, congregant_id } = user;
+    const { email, congregant_id, username } = user;
 
     const cong = await this.congService.findById(congregant_id);
 
@@ -78,8 +78,8 @@ export class UsersService {
     const newUser = this.usersRepository.create({
       email,
       details: cong,
-      username: email,
-      password: email,
+      username: username,
+      password: username,
     });
 
     try {
@@ -99,6 +99,15 @@ export class UsersService {
     const user = await this.usersRepository.findOne({
       where: { username: username },
       select: ['id', 'email', 'username', 'password', 'createdAt', 'updatedAt'],
+    });
+
+    return user;
+  }
+
+  public async getUserByEmail(email: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { email: email },
+      select: ['id', 'email', 'username', 'createdAt', 'updatedAt'],
     });
 
     return user;

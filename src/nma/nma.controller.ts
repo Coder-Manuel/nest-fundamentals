@@ -21,4 +21,12 @@ export class NmaController {
   ) {
     return await this.service.transferAttendance(page, limit);
   }
+
+  @Get('users/transfer')
+  async transferUsers(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return await this.service.transferUsers(page, limit);
+  }
 }
