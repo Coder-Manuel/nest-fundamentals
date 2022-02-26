@@ -12,6 +12,10 @@ export default class ORMErrorHandler {
         });
 
       default:
+        throw new BadRequestException({
+          error: 'Error while updating',
+          description: error,
+        });
         break;
     }
   }

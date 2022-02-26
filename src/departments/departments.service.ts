@@ -36,7 +36,7 @@ export class DepartmentsService {
     const departments = await this.departmentRepo.find({
       take: limit,
       skip: (page - 1) * limit,
-      relations: ['leader'],
+      relations: ['leader', 'members'],
     });
 
     return departments;
@@ -73,9 +73,12 @@ export class DepartmentsService {
    * @throws NotFoundException
    */
   private async findById(id: string): Promise<Department> {
-    const department = await this.departmentRepo.findOne({
-      id: id,
-    });
+    const department = await this.departmentRepo.findOne(
+      {
+        id: id,
+      },
+      { relations: ['leader', 'members'] },
+    );
 
     if (!department) {
       throw new NotFoundException({

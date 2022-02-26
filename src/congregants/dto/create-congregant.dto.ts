@@ -37,6 +37,10 @@ export class CreateCongregantDTO {
   @IsBoolean()
   vaccinated: boolean;
 
+  createdAt?: string;
+
+  dep_name?: string;
+
   @ApiProperty()
   @IsOptional()
   @IsUUID()

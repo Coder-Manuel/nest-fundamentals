@@ -24,7 +24,7 @@ export class Department extends BaseEntity {
   @ApiProperty()
   leader: string;
 
-  @OneToMany(() => Congregant, (congregant) => congregant.fellowship)
+  @OneToMany(() => Congregant, (congregant) => congregant.department)
   @ApiProperty()
   members: Congregant[];
 }
