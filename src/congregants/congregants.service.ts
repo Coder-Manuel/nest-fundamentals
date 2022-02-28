@@ -101,7 +101,7 @@ export class CongregantsService {
 
     if (!cong) {
       throw new NotFoundException({
-        message: 'Not Found',
+        message: 'Congregant NOT Found',
         description: 'The congregant is not registered',
       });
     }
@@ -143,6 +143,13 @@ export class CongregantsService {
    */
   public async findById(id: string): Promise<Congregant> {
     const congregant = await this.congRepository.findOne({ id: id });
+
+    if (!congregant) {
+      throw new NotFoundException({
+        message: 'Congregant NOT Found',
+        description: 'The congregant is not registered',
+      });
+    }
 
     return congregant;
   }
