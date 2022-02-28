@@ -1,10 +1,14 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AttendanceService } from 'src/attendance/attendance.service';
+import { CreateAttendanceDTO } from 'src/attendance/dto';
 import { CongregantsService } from 'src/congregants';
 import { CreateCongregantDTO } from 'src/congregants/dto';
 import { Congregant } from 'src/congregants/entities';
+import { UsersService } from 'src/users';
+import { CreateUserDTO } from 'src/users/dto';
 import { Repository } from 'typeorm';
-import { NAttendance, NCongregant } from './entities';
+import { NAttendance, NCongregant, NUser } from './entities';
 
 @Injectable()
 export class NmaService {
@@ -15,7 +19,14 @@ export class NmaService {
     @InjectRepository(NAttendance, 'prod')
     private readonly attendRepo: Repository<NAttendance>,
 
+    @InjectRepository(NUser, 'prod')
+    private readonly usersRepo: Repository<NUser>,
+
     private readonly congService: CongregantsService,
+
+    private readonly usersService: UsersService,
+
+    private readonly attendanceService: AttendanceService,
   ) {}
 
   /**
@@ -71,7 +82,18 @@ export class NmaService {
     return await this.getAttendance(cong);
   }
 
+  public async transferUsers(page: number, limit: number): Promise<any> {
+    const users = await this.usersRepo.find({
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    return await this.getUsers(users);
+  }
+
   private async getAttendance(congregants: Congregant[]) {
+    const start = Date.now();
+
     const attendances = [];
 
     for (const element of congregants) {
@@ -79,11 +101,63 @@ export class NmaService {
         where: { firstName: element.firstName, otherName: element.lastName },
       });
 
-      const attendance = { user: element, attendance: att };
+      for (const atn of att) {
+        const usr = await this.usersRepo.findOne({
+          where: { name: atn.checked_in_by },
+        });
+        const email = usr.email;
 
-      attendances.push(attendance);
+        const checked_in_by = await this.usersService.getUserByEmail(email);
+
+        const createAttendance = new CreateAttendanceDTO();
+        createAttendance.user = element.id;
+        createAttendance.temperature = atn.temperature;
+        createAttendance.checked_in_by = checked_in_by.id;
+        createAttendance.created_at = atn.date;
+        createAttendance.time = atn.time;
+
+        this.attendanceService.createAttendance(createAttendance);
+      }
+
+      attendances.push(...att);
     }
 
-    return await Promise.all(attendances);
+    const end = Date.now();
+
+    const time = `${(end - start) / 1000} seconds`;
+
+    return await Promise.resolve({
+      message: `Successfully registered ${attendances.length} attendances`,
+      execution_time: time,
+    });
+  }
+
+  private async getUsers(users: NUser[]) {
+    const congregants = [];
+
+    for (const element of users) {
+      const names = element.name.split(' ');
+      const cn = await this.congService.getCongregantByNameMobile(
+        names[0],
+        names[1],
+        element.phone,
+      );
+
+      const usr = new CreateUserDTO();
+
+      if (cn.length > 0) {
+        usr.email = element.email;
+        usr.congregant_id = cn[0].id;
+        usr.username = element.username;
+
+        await this.usersService.createUser(usr);
+      }
+
+      const cong = { user: element, congregant: cn };
+
+      congregants.push(cong);
+    }
+
+    return await Promise.all(congregants);
   }
 }

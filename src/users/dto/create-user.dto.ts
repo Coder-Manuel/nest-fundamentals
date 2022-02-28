@@ -16,4 +16,9 @@ export class CreateUserDTO {
   @IsNotEmpty()
   @IsUUID()
   congregant_id: string;
+
+  @ApiProperty({
+    description: 'The username for the user',
+  })
+  username: string;
 }

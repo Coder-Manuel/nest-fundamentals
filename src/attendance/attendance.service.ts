@@ -17,12 +17,14 @@ export class AttendanceService {
    * @returns {}
    */
   public async createAttendance(input: CreateAttendanceDTO): Promise<any> {
-    const { temperature, checked_in_by, user } = input;
+    const { temperature, checked_in_by, user, created_at, time } = input;
 
     const newAttendance = this.attendanceRepo.create({
       temperature,
       checked_in_by,
       user,
+      time: time,
+      createdAt: created_at,
     });
 
     const attendance = await this.attendanceRepo.save(newAttendance);
