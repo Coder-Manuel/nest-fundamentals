@@ -113,7 +113,7 @@ export class NmaService {
         createAttendance.user = element.id;
         createAttendance.temperature = atn.temperature;
         createAttendance.checked_in_by = checked_in_by.id;
-        createAttendance.created_at = atn.date;
+        createAttendance.date = atn.date;
         createAttendance.time = atn.time;
 
         this.attendanceService.createAttendance(createAttendance);

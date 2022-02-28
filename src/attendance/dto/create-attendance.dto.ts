@@ -25,7 +25,7 @@ export class CreateAttendanceDTO {
   @ApiProperty({ description: "The congregant's department id" })
   department?: string;
 
-  created_at: string;
+  date: string;
 
   time: string;
 }
